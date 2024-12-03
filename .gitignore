@@ -5,39 +5,6 @@
 !.project
 !pom.xml
 !.classpath
-!src/
-src/*
-!src/main/
-src/main/*
-!src/main/java/
-src/main/java/*
-!src/main/java/com/
-src/main/java/com/*
-
-
-# test
-!src/test/
-src/test/*
-!src/test/java/
-src/test/java/*
-!src/test/java/com/
-src/test/java/com/*
-!src/test/java/com/mayab/
-src/test/java/com/mayab/*
-!src/test/java/com/mayab/quality/
-src/test/java/com/mayab/quality/*
-!src/test/java/com/mayab/quality/functional/
-src/test/java/com/mayab/quality/functional/*
-!src/test/java/com/mayab/quality/functional/CRUDSeleniumTest.java
-
-
-# XML resources
-!src/resources/
-src/resources/*
-!src/resources/createUser.xml
-!src/resources/deleteUser.xml
-!src/resources/initDB.xml
-!src/resources/updateUser.xml
 
 # Java-specific ignore patterns
 *.class
