@@ -1,67 +1,42 @@
 version: 2.1
 
 jobs:
-  unit_tests:
+  build_and_test:
     docker:
-      - image: circleci/openjdk:17  # Cambié la imagen a OpenJDK 17 para que coincida con tu POM
+      - image: cimg/openjdk:23.0.1  # Imagen base con Java
+      - image: mysql:8.0            # Imagen de MySQL como servicio
+      - image: selenium/standalone-chrome  # Imagen de Selenium con Chrome
+        environment:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: calidad
+
     steps:
-      - checkout  # Checkout the source code
+      - checkout  # Realiza el checkout del código fuente
 
-      # Instalar ca-certificates-java
       - run:
-          name: Install ca-certificates-java
+          name: Configurar base de datos
           command: |
-            sudo apt-get update  # Actualizar la lista de paquetes
-            sudo apt-get install -y ca-certificates-java  # Instalar ca-certificates-java
+            echo "Creando base de datos para pruebas..."
+            mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE calidad;"
 
-      # Instalar default-jdk
       - run:
-          name: Install default-jdk
+          name: Instalar cliente MySQL
           command: |
-            sudo apt-get install -y default-jdk  # Instalar default JDK
-
-      # Instalar Maven
-      - run:
-          name: Install Maven
-          command: |
-            sudo apt-get install -y maven  # Instalar Maven
-
-      # Instalar Google Chrome
-      - run:
-          name: Install Google Chrome
-          command: |
-            wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-            echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
             sudo apt-get update
-            sudo apt-get install -y google-chrome-stable
+            sudo apt-get install -y mysql-client
 
-      # Descargar y configurar ChromeDriver
       - run:
-          name: Install ChromeDriver
+          name: Compilar proyecto y ejecutar pruebas específicas
           command: |
-            CHROME_DRIVER_VERSION=$(wget -qO- https://chromedriver.storage.googleapis.com/LATEST_RELEASE)
-            wget -N https://chromedriver.storage.googleapis.com/$CHROME_DRIVER_VERSION/chromedriver_linux64.zip
-            unzip chromedriver_linux64.zip
-            sudo mv chromedriver /usr/local/bin/
-            sudo chmod +x /usr/local/bin/chromedriver
-
-      # Compilar el proyecto sin ejecutar pruebas
-      - run:
-          name: Build the project
-          command: mvn clean install -DskipTests
-
-      # Ejecutar pruebas especificas
-      - run:
-          name: Run specific unit tests
-          command: |
-            mvn test -Dtest=CRUDSeleniumTest
-            mvn test -Dtest=SeleniumTest
-            mvn test -Dtest=UserDAOTest
-            mvn test -Dtest=UserServiceTest
-            mvn test -Dtest=LoginServiceTest
+            mvn clean install -DskipTests  # Compila el proyecto sin ejecutar pruebas
+            mvn test -Dtest=src.test.java.com.mayab.quality.functional.CRUDSeleniumTest  # Ejecutar prueba CRUDSeleniumTest
+            mvn test -Dtest=src.test.java.com.mayab.quality.functional.SeleniumTest  # Ejecutar prueba SeleniumTest
+            mvn test -Dtest=src.test.java.com.mayab.quality.integration.UserDAOTest  # Ejecutar prueba UserDAOTest
+            mvn test -Dtest=src.test.java.com.mayab.quality.unittest.integration.UserDAOTest  # Ejecutar prueba UserDAOTest
+            mvn test -Dtest=src.test.java.com.mayab.quality.unittest.service.UserDAOTest  # Ejecutar prueba UserDAOTest
 
 workflows:
   version: 2
   build_and_test:
     jobs:
-      - unit_tests
+      - build_and_test
