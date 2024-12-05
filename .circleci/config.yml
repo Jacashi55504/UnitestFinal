@@ -11,14 +11,25 @@ jobs:
           MYSQL_USER: root
           MYSQL_PASSWORD: 123456
     steps:
-      - checkout  # Descarga el código fuente
+      - checkout
 
-      # Configurar Maven y dependencias
+      # Actualizar paquetes y solucionar problemas de ca-certificates-java
+      - run:
+          name: Update package manager
+          command: sudo apt-get update
+
+      - run:
+          name: Fix ca-certificates-java issue
+          command: |
+            sudo apt-get purge --auto-remove -y ca-certificates-java
+            sudo apt-get install -y ca-certificates-java
+
+      # Instalar Maven
       - run:
           name: Install Maven
-          command: sudo apt-get update && sudo apt-get install -y maven
+          command: sudo apt-get install -y maven
 
-      # Construir el proyecto y omitir pruebas específicas
+      # Construir el proyecto
       - run:
           name: Build the project
           command: mvn clean install -DskipTests
