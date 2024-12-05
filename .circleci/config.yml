@@ -6,7 +6,7 @@ jobs:
       - image: circleci/openjdk:11  # Imagen principal con OpenJDK 11
       - image: circleci/mysql:5.7   # Servicio de MySQL
         environment:
-          MYSQL_ROOT_PASSWORD: root
+          MYSQL_ROOT_PASSWORD: 123456
           MYSQL_DATABASE: calidad2024
     steps:
       - checkout
@@ -15,6 +15,18 @@ jobs:
       - run:
           name: Update package manager
           command: sudo apt-get update
+
+      # Instalar cliente MySQL desde el repositorio oficial
+      - run:
+          name: Install MySQL client
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y wget gnupg
+            wget https://dev.mysql.com/get/mysql-apt-config_0.8.24-1_all.deb
+            sudo dpkg -i mysql-apt-config_0.8.24-1_all.deb
+            sudo apt-get update
+            sudo apt-get install -y mysql-client
+            rm mysql-apt-config_0.8.24-1_all.deb
 
       # Instalar Dockerize para esperar a que MySQL esté listo
       - run:
@@ -33,8 +45,8 @@ jobs:
       - run:
           name: Configure database schema
           command: |
-            echo "Aplicando esquema de la base de datos desde src/resources/schema.sql..."
-            mysql -h 127.0.0.1 -u root -proot calidad2024 < src/resources/schema.sql
+            echo "Aplicando esquema de la base de datos desde .circleci/schema.sql..."
+            mysql -h 127.0.0.1 -u root -proot calidad2024 < .circleci/schema.sql
 
       # Instalar Maven
       - run:
