@@ -12,14 +12,6 @@ jobs:
           name: Update package manager
           command: sudo apt-get update
 
-      # Configurar JAVA_HOME y reconfigurar certificados
-      - run:
-          name: Fix Java Certificates Issue
-          command: |
-            sudo apt-get install -y ca-certificates-java
-            export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
-            sudo update-ca-certificates -f
-
       # Instalar Maven
       - run:
           name: Install Maven

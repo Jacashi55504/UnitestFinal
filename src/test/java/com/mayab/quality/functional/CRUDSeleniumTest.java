@@ -4,6 +4,7 @@ import org.junit.*;
 import org.junit.runners.MethodSorters;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.*;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
@@ -21,7 +22,14 @@ public class CRUDSeleniumTest {
     @Before
     public void setUp() throws Exception {
         WebDriverManager.chromedriver().setup();
-        driver = new ChromeDriver();
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--headless"); // Ejecutar en modo headless
+        options.addArguments("--disable-gpu"); // Deshabilitar GPU para mejorar rendimiento
+        options.addArguments("--no-sandbox"); // Requerido en entornos sin permisos root
+        options.addArguments("--disable-dev-shm-usage"); // Usar /tmp para memoria compartida
+        options.addArguments("--remote-allow-origins=*"); // Permitir conexiones remotas
+        options.addArguments("--window-size=1920,1080"); // Establecer tamaño de ventana para pruebas visuales
+        driver = new ChromeDriver(options);
         baseUrl = "https://mern-crud-mpfr.onrender.com/";
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(60)); 
         wait = new WebDriverWait(driver, Duration.ofSeconds(10)); 
