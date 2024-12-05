@@ -20,7 +20,21 @@ jobs:
             sudo apt-get update
             sudo apt-get install -y mysql-client
 
+      # Esperar a que MySQL esté listo
+      - run:
+          name: Esperar a que MySQL esté listo
+          command: |
+            until mysql -h mysql -u root -proot -e "SELECT 1"; do
+              echo "Esperando a que MySQL esté listo..."
+              sleep 3
+            done
 
+      # Configurar base de datos
+      - run:
+          name: Configurar base de datos
+          command: |
+            echo "Creando base de datos para pruebas..."
+            mysql -h mysql -u root -proot -e "CREATE DATABASE calidad;"
 
       # Compilar el proyecto y ejecutar pruebas específicas
       - run:
