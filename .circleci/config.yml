@@ -12,38 +12,29 @@ jobs:
           name: Update package manager
           command: sudo apt-get update
 
+      # Instalar Maven
+      - run:
+          name: Install Maven
+          command: sudo apt-get install -y maven
+
       # Instalar Google Chrome
       - run:
           name: Install Google Chrome
           command: |
-            sudo apt-get update
-            sudo apt-get install -y wget gnupg
             wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
             echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
             sudo apt-get update
             sudo apt-get install -y google-chrome-stable
 
-      # Instalar ChromeDriver
+      # Descargar y configurar ChromeDriver
       - run:
           name: Install ChromeDriver
           command: |
-            CHROME_DRIVER_VERSION=$(curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE)
+            CHROME_DRIVER_VERSION=$(wget -qO- https://chromedriver.storage.googleapis.com/LATEST_RELEASE)
             wget -N https://chromedriver.storage.googleapis.com/$CHROME_DRIVER_VERSION/chromedriver_linux64.zip
             unzip chromedriver_linux64.zip
             sudo mv chromedriver /usr/local/bin/
             sudo chmod +x /usr/local/bin/chromedriver
-
-      # Verificar versiones instaladas
-      - run:
-          name: Check Chrome and ChromeDriver versions
-          command: |
-            google-chrome --version
-            chromedriver --version
-
-      # Instalar Maven
-      - run:
-          name: Install Maven
-          command: sudo apt-get install -y maven
 
       # Construir el proyecto sin ejecutar pruebas
       - run:
