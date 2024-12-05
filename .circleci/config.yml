@@ -34,7 +34,7 @@ jobs:
           name: Configure database schema
           command: |
             echo "Aplicando esquema de la base de datos desde .circleci/schema.sql..."
-            mysql -h 127.0.0.1 -u root -proot calidad2024 < .circleci/schema.sql
+            mysql -h 127.0.0.1 -u root -p 123456 calidad2024 < src/resources/schema.sql
 
       # Instalar Maven
       - run:
