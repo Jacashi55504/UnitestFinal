@@ -69,7 +69,7 @@ jobs:
       - run:
           name: Configure database schema
           command: |
-            echo "SOURCE src/resources/schema.sql;" | mysql -h 127.0.0.1 -u root -p123456 calidad2024
+            mysql -h mysql -u root -p123456 calidad2024 < src/resources/schema.sql
 
       # Verificar conexión MySQL
       - run:
