@@ -13,27 +13,26 @@ jobs:
     steps:
       - checkout  # Realiza el checkout del código fuente
 
-      - run:
-          name: Configurar base de datos
-          command: |
-            echo "Creando base de datos para pruebas..."
-            mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE calidad;"
-
+      # Instalar cliente MySQL
       - run:
           name: Instalar cliente MySQL
           command: |
             sudo apt-get update
             sudo apt-get install -y mysql-client
 
+      # Configurar base de datos
       - run:
-          name: Compilar proyecto y ejecutar pruebas específicas
+          name: Configurar base de datos
+          command: |
+            echo "Creando base de datos para pruebas..."
+            mysql -h 127.0.0.1 -u root -proot -e "CREATE DATABASE calidad;"
+
+      # Compilar el proyecto y ejecutar pruebas específicas
+      - run:
+          name: Compilar proyecto y ejecutar pruebas
           command: |
             mvn clean install -DskipTests  # Compila el proyecto sin ejecutar pruebas
-            mvn test -Dtest=src.test.java.com.mayab.quality.functional.CRUDSeleniumTest  # Ejecutar prueba CRUDSeleniumTest
-            mvn test -Dtest=src.test.java.com.mayab.quality.functional.SeleniumTest  # Ejecutar prueba SeleniumTest
-            mvn test -Dtest=src.test.java.com.mayab.quality.integration.UserDAOTest  # Ejecutar prueba UserDAOTest
-            mvn test -Dtest=src.test.java.com.mayab.quality.unittest.integration.UserDAOTest  # Ejecutar prueba UserDAOTest
-            mvn test -Dtest=src.test.java.com.mayab.quality.unittest.service.UserDAOTest  # Ejecutar prueba UserDAOTest
+            mvn test -Dtest=com.mayab.quality.functional.CRUDSeleniumTest,com.mayab.quality.functional.SeleniumTest,com.mayab.quality.integration.UserDAOTest,com.mayab.quality.unittest.integration.UserDAOTest,com.mayab.quality.unittest.service.UserDAOTest
 
 workflows:
   version: 2
