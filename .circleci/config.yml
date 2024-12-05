@@ -18,39 +18,10 @@ jobs:
           name: Update package manager
           command: sudo apt-get update
 
-      # Instalar certificados Java
-      - run:
-          name: Install ca-certificates-java
-          command: sudo apt-get install -y ca-certificates-java
-
-      # Instalar JDK predeterminado
-      - run:
-          name: Install Default JDK
-          command: sudo apt-get install -y default-jdk
-
-      # Instalar cliente MySQL usando default-mysql-client
+      # Instalar cliente MySQL
       - run:
           name: Install MySQL Client
           command: sudo apt-get install -y default-mysql-client
-
-      # Instalar Google Chrome
-      - run:
-          name: Install Google Chrome
-          command: |
-            wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-            echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
-            sudo apt-get update
-            sudo apt-get install -y google-chrome-stable
-
-      # Instalar ChromeDriver
-      - run:
-          name: Install ChromeDriver
-          command: |
-            CHROME_DRIVER_VERSION=$(wget -qO- https://chromedriver.storage.googleapis.com/LATEST_RELEASE)
-            wget https://chromedriver.storage.googleapis.com/$CHROME_DRIVER_VERSION/chromedriver_linux64.zip
-            unzip chromedriver_linux64.zip
-            sudo mv chromedriver /usr/local/bin/
-            rm chromedriver_linux64.zip
 
       # Instalar Dockerize para esperar a que MySQL esté listo
       - run:
@@ -65,17 +36,17 @@ jobs:
           name: Wait for MySQL
           command: dockerize -wait tcp://127.0.0.1:3306 -timeout 1m
 
-      # Configurar base de datos con esquema SQL
+      # Importar esquema SQL
       - run:
-          name: Configure database schema
+          name: Install MySQL and import schema
           command: |
-            mysql -h mysql -u root -p123456 calidad2024 < src/resources/schema.sql
-
-      # Verificar conexión MySQL
-      - run:
-          name: Verify MySQL Connection
-          command: |
-            mysql -h mysql -u root -p123456 calidad2024 -e "SHOW TABLES;"
+            sudo apt update && sudo apt install -y default-mysql-client
+            echo "Importing schema from src/resources/schema.sql..."
+            mysql -h 127.0.0.1 -uroot -p123456 calidad2024 < src/resources/schema.sql
+            echo "Checking tables in calidad2024..."
+            mysql -h 127.0.0.1 -uroot -p123456 calidad2024 -e "SHOW TABLES;"
+            echo "SELECT * FROM usuarios;" | mysql -h 127.0.0.1 -uroot -p123456 calidad2024
+            echo "done"
 
       # Construir el proyecto sin ejecutar pruebas
       - run:
