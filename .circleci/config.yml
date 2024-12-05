@@ -20,12 +20,6 @@ jobs:
             sudo apt-get update
             sudo apt-get install -y mysql-client
 
-      # Configurar base de datos
-      - run:
-          name: Configurar base de datos
-          command: |
-            echo "Creando base de datos para pruebas..."
-            mysql -h mysql -u root -proot -e "CREATE DATABASE calidad;"
 
       # Compilar el proyecto y ejecutar pruebas específicas
       - run:
