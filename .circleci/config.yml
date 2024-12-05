@@ -16,6 +16,13 @@ jobs:
           name: Update package manager
           command: sudo apt-get update
 
+      # Instalar MySQL client
+      - run:
+          name: Install MySQL Client
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y mysql-client
+
       # Instalar Dockerize para esperar a que MySQL esté listo
       - run:
           name: Install Dockerize
@@ -33,8 +40,8 @@ jobs:
       - run:
           name: Configure database schema
           command: |
-            echo "Aplicando esquema de la base de datos desde .circleci/schema.sql..."
-            mysql -h 127.0.0.1 -u root -p 123456 calidad2024 < src/resources/schema.sql
+            echo "Aplicando esquema de la base de datos desde src/resources/schema.sql..."
+            mysql -h 127.0.0.1 -u root -p123456 calidad2024 < src/resources/schema.sql
 
       # Instalar Maven
       - run:
