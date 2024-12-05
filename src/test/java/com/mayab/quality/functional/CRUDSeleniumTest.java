@@ -20,8 +20,6 @@ public class CRUDSeleniumTest {
 
     @Before
     public void setUp() throws Exception {
-        options.addArguments("--headless");
-        options.addArguments("--disable-gpu"); // Optional, helps with headless rendering
         WebDriverManager.chromedriver().setup();
         driver = new ChromeDriver();
         baseUrl = "https://mern-crud-mpfr.onrender.com/";
