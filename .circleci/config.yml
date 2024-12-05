@@ -1,49 +1,31 @@
 version: 2.1
 
-jobs:
-  unit_tests:
+executors:
+  java-executor:
     docker:
-      - image: circleci/openjdk:11  # OpenJDK 11 para pruebas unitarias
-    steps:
-      - checkout  # Descargar el código fuente
-
-      # Instalar dependencias necesarias
-      - run:
-          name: Instalar dependencias básicas
-          command: |
-            sudo apt-get update
-            sudo apt-get install -y default-jdk maven
-
-      # Compilar el proyecto sin ejecutar pruebas
-      - run:
-          name: Compilar el proyecto
-          command: mvn clean install -DskipTests
-
-      # Ejecutar pruebas unitarias (sin incluir UserDAOTest)
-      - run:
-          name: Ejecutar pruebas unitarias
-          command: mvn test -Dtest=!UserDAOTest
-
-  integration_tests:
-    docker:
-      - image: circleci/openjdk:11
-      - image: circleci/mysql:8.0  # Base de datos MySQL para pruebas de integración
+      - image: circleci/openjdk:17  # Imagen con soporte para Java 17
+      - image: circleci/mysql:8.0  # Base de datos MySQL
         environment:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: calidad2024
-    steps:
-      - checkout  # Descargar el código fuente
+    working_directory: ~/project  # Directorio de trabajo en el contenedor
 
-      # Instalar dependencias necesarias
+jobs:
+  build:
+    executor: java-executor
+    steps:
+      - checkout  # Descarga el código fuente del repositorio
+
+      # Instalar Maven
       - run:
-          name: Instalar dependencias básicas
+          name: Instalar Maven
           command: |
             sudo apt-get update
-            sudo apt-get install -y default-jdk maven
+            sudo apt-get install -y maven
 
       # Esperar a que MySQL esté disponible
       - run:
-          name: Esperar a que MySQL esté listo
+          name: Esperar a que MySQL esté disponible
           command: |
             for i in {1..10}; do
               nc -z localhost 3306 && break
@@ -53,27 +35,41 @@ jobs:
 
       # Configurar base de datos inicial para DBUnit
       - run:
-          name: Configurar base de datos inicial
+          name: Configurar base de datos
           command: |
             mysql -u root -proot -e "CREATE DATABASE IF NOT EXISTS calidad2024;"
 
-      # Compilar el proyecto sin ejecutar pruebas
+      # Compilar el proyecto
       - run:
           name: Compilar el proyecto
           command: mvn clean install -DskipTests
 
-      # Ejecutar pruebas de integración
+  unit_tests:
+    executor: java-executor
+    steps:
+      - checkout  # Descargar el código fuente
+      - attach_workspace:
+          at: ~/project
+      - run:
+          name: Ejecutar pruebas unitarias
+          command: mvn test -Dtest=!UserDAOTest
+
+  integration_tests:
+    executor: java-executor
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/project
       - run:
           name: Ejecutar pruebas de integración
           command: mvn test -Dtest=UserDAOTest
 
   functional_tests:
-    docker:
-      - image: circleci/openjdk:11
+    executor: java-executor
     steps:
-      - checkout  # Descargar el código fuente
+      - checkout
 
-      # Instalar Chrome y ChromeDriver
+      # Instalar Google Chrome y ChromeDriver
       - run:
           name: Instalar Google Chrome y ChromeDriver
           command: |
@@ -87,12 +83,6 @@ jobs:
             sudo mv chromedriver /usr/local/bin/
             sudo chmod +x /usr/local/bin/chromedriver
 
-      # Compilar el proyecto sin ejecutar pruebas
-      - run:
-          name: Compilar el proyecto
-          command: mvn clean install -DskipTests
-
-      # Ejecutar pruebas funcionales
       - run:
           name: Ejecutar pruebas funcionales
           command: mvn test -Dtest=CRUDSeleniumTest
@@ -101,7 +91,10 @@ workflows:
   version: 2
   build_and_test:
     jobs:
-      - unit_tests
+      - build
+      - unit_tests:
+          requires:
+            - build
       - integration_tests:
           requires:
             - unit_tests
