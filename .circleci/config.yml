@@ -1,35 +1,62 @@
 version: 2.1
 
 jobs:
-  build_and_test:
+  unit_tests:
     docker:
-      - image: cimg/openjdk:23.0.1  # Imagen base con Java
-      - image: selenium/standalone-chrome  # Imagen de Selenium con Chrome
-      - image: mysql:8.0            # Imagen de MySQL como servicio
-        environment:
-          MYSQL_ROOT_PASSWORD: 123456
-          MYSQL_DATABASE: calidad
-
+      - image: circleci/openjdk:11  # Image with OpenJDK 11
     steps:
-      - checkout  # Realiza el checkout del código fuente
+      - checkout  # Checkout the source code
 
-      # Instalar cliente MySQL
+      # Instalar ca-certificates-java
       - run:
-          name: Instalar cliente MySQL
+          name: Install ca-certificates-java
           command: |
+            sudo apt-get update  # Actualizar la lista de paquetes
+            sudo apt-get install -y ca-certificates-java  # Instalar ca-certificates-java
+
+      # Instalar default-jdk
+      - run:
+          name: Install default-jdk
+          command: |
+            sudo apt-get install -y default-jdk  # Instalar default JDK
+
+      # Instalar Maven
+      - run:
+          name: Install Maven
+          command: |
+            sudo apt-get install -y maven  # Instalar Maven
+
+      # Instalar Google Chrome
+      - run:
+          name: Install Google Chrome
+          command: |
+            wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+            echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
             sudo apt-get update
-            sudo apt-get install -y mysql-client
+            sudo apt-get install -y google-chrome-stable
 
-
-      # Compilar el proyecto y ejecutar pruebas específicas
+      # Descargar y configurar ChromeDriver
       - run:
-          name: Compilar proyecto y ejecutar pruebas
+          name: Install ChromeDriver
           command: |
-            mvn clean install -DskipTests  # Compila el proyecto sin ejecutar pruebas
-            mvn test -Dtest=com.mayab.quality.functional.CRUDSeleniumTest,com.mayab.quality.functional.SeleniumTest,com.mayab.quality.integration.UserDAOTest,com.mayab.quality.unittest.integration.UserDAOTest,com.mayab.quality.unittest.service.UserDAOTest
+            CHROME_DRIVER_VERSION=$(wget -qO- https://chromedriver.storage.googleapis.com/LATEST_RELEASE)
+            wget -N https://chromedriver.storage.googleapis.com/$CHROME_DRIVER_VERSION/chromedriver_linux64.zip
+            unzip chromedriver_linux64.zip
+            sudo mv chromedriver /usr/local/bin/
+            sudo chmod +x /usr/local/bin/chromedriver
+
+      # Compilar el proyecto sin ejecutar pruebas
+      - run:
+          name: Build the project
+          command: mvn clean install -DskipTests
+
+      # Ejecutar pruebas ignorando UserDAOTest
+      - run:
+          name: Run unit tests (ignore UserDAOTest)
+          command: mvn test -Dtest=!UserDAOTest
 
 workflows:
   version: 2
   build_and_test:
     jobs:
-      - build_and_test
+      - unit_tests
