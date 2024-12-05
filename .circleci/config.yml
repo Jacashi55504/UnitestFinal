@@ -16,18 +16,6 @@ jobs:
           name: Update package manager
           command: sudo apt-get update
 
-      # Instalar cliente MySQL desde el repositorio oficial
-      - run:
-          name: Install MySQL client
-          command: |
-            sudo apt-get update
-            sudo apt-get install -y wget gnupg
-            wget https://dev.mysql.com/get/mysql-apt-config_0.8.24-1_all.deb
-            sudo dpkg -i mysql-apt-config_0.8.24-1_all.deb
-            sudo apt-get update
-            sudo apt-get install -y mysql-client
-            rm mysql-apt-config_0.8.24-1_all.deb
-
       # Instalar Dockerize para esperar a que MySQL esté listo
       - run:
           name: Install Dockerize
