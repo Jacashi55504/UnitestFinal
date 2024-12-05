@@ -52,8 +52,13 @@ jobs:
 
       # Ejecutar pruebas especificas
       - run:
-          name: Run unit tests
-          command: mvn test -Dtest=src/test/java/com/mayab/quality/functional/CRUDSeleniumTest,src/test/java/com/mayab/quality/functional/SeleniumTest,src/test/java/com/mayab/quality/integration/UserDAOTest,src/test/java/com/mayab/quality/unittest/integration/UserDAOTest,src/test/java/com/mayab/quality/unittest/service/UserDAOTest
+          name: Run specific unit tests
+          command: |
+            mvn test -Dtest=CRUDSeleniumTest
+            mvn test -Dtest=SeleniumTest
+            mvn test -Dtest=UserDAOTest
+            mvn test -Dtest=UserServiceTest
+            mvn test -Dtest=LoginServiceTest
 
 workflows:
   version: 2
