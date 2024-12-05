@@ -1,10 +1,18 @@
-.classpath
+
 !.gitignore
 
 !.mvn/
 !.project
 !pom.xml
 !.classpath
+
+# XML resources
+!src/resources/
+src/resources/*
+!src/resources/createUser.xml
+!src/resources/deleteUser.xml
+!src/resources/initDB.xml
+!src/resources/updateUser.xml
 
 # Java-specific ignore patterns
 *.class
