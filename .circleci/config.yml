@@ -3,7 +3,11 @@ version: 2.1
 jobs:
   unit_tests:
     docker:
-      - image: circleci/openjdk:11  # Base image con OpenJDK 11
+      - image: circleci/openjdk:11  # Imagen principal con OpenJDK 11
+      - image: circleci/mysql:5.7   # Servicio de MySQL
+        environment:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: calidad2024
     steps:
       - checkout
 
@@ -12,45 +16,30 @@ jobs:
           name: Update package manager
           command: sudo apt-get update
 
-      # Configurar JAVA_HOME y reparar certificados
+      # Instalar Dockerize para esperar a que MySQL esté listo
       - run:
-          name: Fix Java Certificates Issue
+          name: Install Dockerize
           command: |
-            export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
-            echo "JAVA_HOME=${JAVA_HOME}" | sudo tee -a /etc/environment
-            sudo apt-get install -y ca-certificates-java
-            sudo update-ca-certificates -f
+            wget https://github.com/jwilder/dockerize/releases/download/v0.6.1/dockerize-linux-amd64-v0.6.1.tar.gz
+            sudo tar -C /usr/local/bin -xzvf dockerize-linux-amd64-v0.6.1.tar.gz
+            rm dockerize-linux-amd64-v0.6.1.tar.gz
+
+      # Esperar a que MySQL esté listo
+      - run:
+          name: Wait for MySQL
+          command: dockerize -wait tcp://127.0.0.1:3306 -timeout 1m
+
+      # Configurar base de datos con esquema SQL
+      - run:
+          name: Configure database schema
+          command: |
+            echo "Aplicando esquema de la base de datos desde src/resources/schema.sql..."
+            mysql -h 127.0.0.1 -u root -proot calidad2024 < src/resources/schema.sql
 
       # Instalar Maven
       - run:
           name: Install Maven
           command: sudo apt-get install -y maven
-
-      # Instalar Google Chrome
-      - run:
-          name: Install Google Chrome
-          command: |
-            wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-            echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
-            sudo apt-get update
-            sudo apt-get install -y google-chrome-stable
-
-      # Descargar y configurar ChromeDriver
-      - run:
-          name: Install ChromeDriver
-          command: |
-            CHROME_DRIVER_VERSION=$(wget -qO- https://chromedriver.storage.googleapis.com/LATEST_RELEASE)
-            wget -N https://chromedriver.storage.googleapis.com/$CHROME_DRIVER_VERSION/chromedriver_linux64.zip
-            unzip chromedriver_linux64.zip
-            sudo mv chromedriver /usr/local/bin/
-            sudo chmod +x /usr/local/bin/chromedriver
-
-      # Verificar versiones de Google Chrome y ChromeDriver
-      - run:
-          name: Check Chrome and ChromeDriver versions
-          command: |
-            google-chrome --version
-            chromedriver --version
 
       # Construir el proyecto sin ejecutar pruebas
       - run:
