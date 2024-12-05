@@ -26,7 +26,7 @@ public class CRUDSeleniumTest {
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(60)); 
         wait = new WebDriverWait(driver, Duration.ofSeconds(10)); 
     }
-
+    
     @Test
     public void testACreateNewRecord() throws InterruptedException {
         navigateToBaseUrl();
