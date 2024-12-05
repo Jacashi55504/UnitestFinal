@@ -16,10 +16,21 @@ jobs:
           name: Update package manager
           command: sudo apt-get update
 
+      # Instalar certificados Java
+      - run:
+          name: Install ca-certificates-java
+          command: sudo apt-get install -y ca-certificates-java
+
+      # Instalar JDK predeterminado
+      - run:
+          name: Install Default JDK
+          command: sudo apt-get install -y default-jdk
+
       # Instalar cliente MySQL usando default-mysql-client
       - run:
           name: Install MySQL Client
-          command: sudo apt-get install -y default-mysql-client
+          command: |
+            sudo apt-get install -y default-mysql-client
 
       # Instalar Dockerize para esperar a que MySQL esté listo
       - run:
@@ -34,21 +45,11 @@ jobs:
           name: Wait for MySQL
           command: dockerize -wait tcp://127.0.0.1:3306 -timeout 1m
 
-      # Instalar MySQL y aplicar esquema
+      # Configurar base de datos con esquema SQL
       - run:
-          name: Install MySQL and import schema
+          name: Configure database schema
           command: |
-            sudo apt-get install -y default-mysql-client
-            echo "SOURCE src/resources/schema.sql;" | mysql -h 127.0.0.1 -uroot -p123456 calidad2024
-            echo "Checking tables in calidad2024..."
-            mysql -h 127.0.0.1 -uroot -p123456 calidad2024 -e "SHOW TABLES;"
-            echo "SELECT * FROM usuarios;" | mysql -h 127.0.0.1 -uroot -p123456 calidad2024
-            echo "done"
-
-      # Instalar Maven
-      - run:
-          name: Install Maven
-          command: sudo apt-get install -y maven
+            echo "SOURCE src/test/resources/schema.sql;" | mysql -h 127.0.0.1 -u root -p123456 calidad2024
 
       # Construir el proyecto sin ejecutar pruebas
       - run:
