@@ -9,7 +9,7 @@ jobs:
         environment:
           MYSQL_ROOT_PASSWORD: 123456
           MYSQL_DATABASE: calidad2024
-        command: --default-authentication-plugin=mysql_native_password
+        command: --default-authentication-plugin=mysql_native_password --log-error-verbosity=3
     steps:
       - checkout
 
@@ -34,7 +34,12 @@ jobs:
       # Esperar a que MySQL esté listo
       - run:
           name: Wait for MySQL
-          command: dockerize -wait tcp://mysql:3306 -timeout 1m
+          command: dockerize -wait tcp://mysql:3306 -timeout 2m
+
+      # Verificar archivo de esquema
+      - run:
+          name: List schema file
+          command: ls -l src/resources
 
       # Configurar base de datos con esquema SQL
       - run:
@@ -50,7 +55,11 @@ jobs:
           command: |
             echo "Checking database schema..."
             mysql -h mysql -uroot -p123456 calidad2024 -e "SHOW TABLES;"
-            echo "Database schema verified."
+
+      # Probar conexión MySQL
+      - run:
+          name: Test MySQL Connection
+          command: mysql -h mysql -uroot -p123456 calidad2024 -e "SELECT 1;"
 
       # Construir el proyecto sin ejecutar pruebas
       - run:
