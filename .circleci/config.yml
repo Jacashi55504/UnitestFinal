@@ -78,7 +78,7 @@ jobs:
       - run:
           name: Run unit tests (excluding UserDAOTest and UserServiceTest)
           command: |
-            mvn test -Dtest=!UserDAOTest,!UserServiceTest,CRUDSeleniumTest,SeleniumTest,LoginServiceTest
+            mvn test -Dtest=!UserDAOTest,!UserServiceTest,CRUDSeleniumTest,LoginServiceTest
 
 workflows:
   version: 2
