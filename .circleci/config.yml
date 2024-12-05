@@ -8,6 +8,7 @@ jobs:
         environment:
           MYSQL_ROOT_PASSWORD: 123456
           MYSQL_DATABASE: calidad2024
+        command: --default-authentication-plugin=mysql_native_password
     steps:
       - checkout
 
@@ -68,6 +69,12 @@ jobs:
           name: Configure database schema
           command: |
             echo "SOURCE src/resources/schema.sql;" | mysql -h 127.0.0.1 -u root -p123456 calidad2024
+
+      # Verificar conexión MySQL
+      - run:
+          name: Verify MySQL Connection
+          command: |
+            mysql -h mysql -u root -p123456 calidad2024 -e "SHOW TABLES;"
 
       # Construir el proyecto sin ejecutar pruebas
       - run:
