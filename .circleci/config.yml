@@ -49,7 +49,7 @@ jobs:
       - run:
           name: Configure database schema
           command: |
-            echo "SOURCE src/test/resources/schema.sql;" | mysql -h 127.0.0.1 -u root -p123456 calidad2024
+            echo "SOURCE src/resources/schema.sql;" | mysql -h 127.0.0.1 -u root -p123456 calidad2024
 
       # Construir el proyecto sin ejecutar pruebas
       - run:
