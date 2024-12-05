@@ -4,10 +4,10 @@ jobs:
   build_and_test:
     docker:
       - image: cimg/openjdk:23.0.1  # Imagen base con Java
-      - image: mysql:8.0            # Imagen de MySQL como servicio
       - image: selenium/standalone-chrome  # Imagen de Selenium con Chrome
+      - image: mysql:8.0            # Imagen de MySQL como servicio
         environment:
-          MYSQL_ROOT_PASSWORD: root
+          MYSQL_ROOT_PASSWORD: 123456
           MYSQL_DATABASE: calidad
 
     steps:
