@@ -1,103 +1,62 @@
 version: 2.1
 
-executors:
-  java-executor:
-    docker:
-      - image: circleci/openjdk:17  # Imagen con soporte para Java 17
-      - image: circleci/mysql:8.0  # Base de datos MySQL
-        environment:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: calidad2024
-    working_directory: ~/project  # Directorio de trabajo en el contenedor
-
 jobs:
-  build:
-    executor: java-executor
+  unit_tests:
+    docker:
+      - image: circleci/openjdk:11  # Imagen con OpenJDK 11
     steps:
-      - checkout  # Descarga el código fuente del repositorio
+      - checkout  # Checkout del código fuente
+
+      # Instalar ca-certificates-java
+      - run:
+          name: Install ca-certificates-java
+          command: |
+            sudo apt-get update  # Actualizar lista de paquetes
+            sudo apt-get install -y ca-certificates-java  # Instalar ca-certificates-java
+
+      # Instalar default-jdk
+      - run:
+          name: Install default-jdk
+          command: |
+            sudo apt-get install -y default-jdk  # Instalar default JDK
 
       # Instalar Maven
       - run:
-          name: Instalar Maven
+          name: Install Maven
           command: |
-            sudo apt-get update
-            sudo apt-get install -y maven
+            sudo apt-get install -y maven  # Instalar Maven
 
-      # Esperar a que MySQL esté disponible
+      # Instalar Google Chrome
       - run:
-          name: Esperar a que MySQL esté disponible
-          command: |
-            for i in {1..10}; do
-              nc -z localhost 3306 && break
-              echo "Esperando MySQL..."
-              sleep 5
-            done
-
-      # Configurar base de datos inicial para DBUnit
-      - run:
-          name: Configurar base de datos
-          command: |
-            mysql -u root -proot -e "CREATE DATABASE IF NOT EXISTS calidad2024;"
-
-      # Compilar el proyecto
-      - run:
-          name: Compilar el proyecto
-          command: mvn clean install -DskipTests
-
-  unit_tests:
-    executor: java-executor
-    steps:
-      - checkout  # Descargar el código fuente
-      - attach_workspace:
-          at: ~/project
-      - run:
-          name: Ejecutar pruebas unitarias
-          command: mvn test -Dtest=!UserDAOTest
-
-  integration_tests:
-    executor: java-executor
-    steps:
-      - checkout
-      - attach_workspace:
-          at: ~/project
-      - run:
-          name: Ejecutar pruebas de integración
-          command: mvn test -Dtest=UserDAOTest
-
-  functional_tests:
-    executor: java-executor
-    steps:
-      - checkout
-
-      # Instalar Google Chrome y ChromeDriver
-      - run:
-          name: Instalar Google Chrome y ChromeDriver
+          name: Install Google Chrome
           command: |
             wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
             echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
             sudo apt-get update
             sudo apt-get install -y google-chrome-stable
+
+      # Descargar y configurar ChromeDriver
+      - run:
+          name: Install ChromeDriver
+          command: |
             CHROME_DRIVER_VERSION=$(wget -qO- https://chromedriver.storage.googleapis.com/LATEST_RELEASE)
             wget -N https://chromedriver.storage.googleapis.com/$CHROME_DRIVER_VERSION/chromedriver_linux64.zip
             unzip chromedriver_linux64.zip
             sudo mv chromedriver /usr/local/bin/
             sudo chmod +x /usr/local/bin/chromedriver
 
+      # Compilar el proyecto sin ejecutar pruebas
       - run:
-          name: Ejecutar pruebas funcionales
-          command: mvn test -Dtest=CRUDSeleniumTest
+          name: Build the project
+          command: mvn clean install -DskipTests
+
+      # Ejecutar las pruebas específicas
+      - run:
+          name: Run specific unit tests
+          command: mvn test -Dtest=CRUDSeleniumTest,SeleniumTest,UserDAOTest,UserServiceTest,LoginServiceTest
 
 workflows:
   version: 2
   build_and_test:
     jobs:
-      - build
-      - unit_tests:
-          requires:
-            - build
-      - integration_tests:
-          requires:
-            - unit_tests
-      - functional_tests:
-          requires:
-            - integration_tests
+      - unit_tests
