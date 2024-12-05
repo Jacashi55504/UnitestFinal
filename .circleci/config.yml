@@ -16,12 +16,12 @@ jobs:
           name: Update package manager
           command: sudo apt-get update
 
-      # Instalar MySQL client
+      # Instalar cliente MySQL usando default-mysql-client
       - run:
           name: Install MySQL Client
           command: |
             sudo apt-get update
-            sudo apt-get install -y mysql-client
+            sudo apt-get install -y default-mysql-client
 
       # Instalar Dockerize para esperar a que MySQL esté listo
       - run:
