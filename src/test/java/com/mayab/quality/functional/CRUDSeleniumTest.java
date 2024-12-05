@@ -11,200 +11,236 @@ import io.github.bonigarcia.wdm.WebDriverManager;
 
 import java.time.Duration;
 import java.util.List;
+
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING) //Seguir el orden de funciones
 public class CRUDSeleniumTest {
-    private WebDriver driver;
-    private WebDriverWait wait;
-    private String baseUrl;
+	private static WebDriver driver;
+	  private boolean verifyRecordExists(String string, String string2, String string3) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+	  private String baseUrl;
+	  private boolean acceptNextAlert = true;
+	  private StringBuffer verificationErrors = new StringBuffer();
+	  JavascriptExecutor js;
+	  
+	  @Before
+	  public void setUp() throws Exception {
+		  WebDriverManager.chromedriver().setup();
+	        
+	        // Set Chrome options for headless mode
+	        ChromeOptions options = new ChromeOptions();
+	        options.addArguments("--headless");
+	        options.addArguments("--disable-gpu"); // Optional, helps with headless rendering
+	        options.addArguments("--window-size=1920x1080"); // Optional, sets a screen resolution
 
-    @Before
-    public void setUp() throws Exception {
-        WebDriverManager.chromedriver().setup();
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless"); // Ejecutar en modo headless
-        options.addArguments("--disable-gpu"); // Deshabilitar GPU para mejorar rendimiento
-        options.addArguments("--no-sandbox"); // Requerido en entornos sin permisos root
-        options.addArguments("--disable-dev-shm-usage"); // Usar /tmp para memoria compartida
-        options.addArguments("--remote-allow-origins=*"); // Permitir conexiones remotas
-        options.addArguments("--window-size=1920,1080"); // Establecer tamaño de ventana para pruebas visuales
-        driver = new ChromeDriver(options);
-        baseUrl = "https://mern-crud-mpfr.onrender.com/";
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(60)); 
-        wait = new WebDriverWait(driver, Duration.ofSeconds(10)); 
-    }
-    
-    @Test
-    public void testACreateNewRecord() throws InterruptedException {
-        navigateToBaseUrl();
-        
-        waitAndClick(By.xpath("//div[@id='root']/div/div[2]/button")); // Add user
-        
-        Thread.sleep(1000);
+	        // Initialize the driver with the headless options
+	        driver = new ChromeDriver(options);
+	        baseUrl = "https://mern-crud-mpfr.onrender.com/";
+	        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(60));
+	        js = (JavascriptExecutor) driver;
+	  }
+	  @Test
+		  public void ATest() throws Exception {
+			  driver.get("https://mern-crud-mpfr.onrender.com/");
+			  pause(5000);
+			    driver.findElement(By.xpath("//div[@id='root']/div/div[2]/button")).click();
+			    driver.findElement(By.name("name")).click();
+			    driver.findElement(By.name("name")).clear();
+			    driver.findElement(By.name("name")).sendKeys("CERVERA GONZALEZZ");
+			    driver.findElement(By.name("email")).click();
+			    driver.findElement(By.name("email")).clear();
+			    driver.findElement(By.name("email")).sendKeys("INDUSTRIASCERVERAGONZALEZ@GMAIL.COM");
+			    driver.findElement(By.name("age")).click();
+			    driver.findElement(By.name("age")).clear();
+			    driver.findElement(By.name("age")).sendKeys("21");
+			    driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Gender'])[2]/following::div[2]")).click();
+			    driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Male'])[1]/following::div[2]")).click();
+			    driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Woah!'])[1]/following::button[1]")).click();
+			    pause(5000);
+		      String actualResult = driver.findElement(By.xpath("/html/body/div[3]/div/div[2]/form/div[4]/div/p")).getText();
+		      assertThat(actualResult, is("Successfully added!"));
+		  }
+	  
+		  @Test
+	  public void BTest() throws Exception {
+		  driver.get("https://mern-crud-mpfr.onrender.com/");
+		  pause(5000);
+		    driver.findElement(By.xpath("//div[@id='root']/div/div[2]/button")).click();
+		    driver.findElement(By.name("name")).click();
+		    driver.findElement(By.name("name")).clear();
+		    driver.findElement(By.name("name")).sendKeys("CERVERA GONZALEZZ");
+		    driver.findElement(By.name("email")).click();
+		    driver.findElement(By.name("email")).clear();
+		    driver.findElement(By.name("email")).sendKeys("INDUSTRIASCERVERAGONZALEZ@GMAIL.COM");
+		    driver.findElement(By.name("age")).click();
+		    driver.findElement(By.name("age")).clear();
+		    driver.findElement(By.name("age")).sendKeys("21");
+		    driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Gender'])[2]/following::div[2]")).click();
+		    driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Male'])[1]/following::div[2]")).click();
+		    driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Woah!'])[1]/following::button[1]")).click();
+		    pause(5000);
+	      String actualResult = driver.findElement(By.xpath("/html/body/div[3]/div/div[2]/form/div[5]/div/p")).getText();
+	      assertThat(actualResult, is("That email is already taken."));
+	  }
+	  
+	  @Test
+	  public void CTest() throws Exception {
+		  driver.get("https://mern-crud-mpfr.onrender.com/");
+		  pause(5000);
+		  driver.findElement(By.xpath("//div[@id='root']/div/div[2]/table/tbody/tr/td[5]/button")).click();
+		    driver.findElement(By.name("name")).click();
+		    driver.findElement(By.name("name")).clear();
+		    driver.findElement(By.name("name")).sendKeys("esteban edit");
+		    driver.findElement(By.name("email")).click();
+		    driver.findElement(By.name("email")).clear();
+		    driver.findElement(By.name("email")).sendKeys("estebanedt@gmail.com");
+		    driver.findElement(By.name("age")).click();
+		    driver.findElement(By.name("age")).click();
+		    driver.findElement(By.name("age")).clear();
+		    driver.findElement(By.name("age")).sendKeys("19");
+		    driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Gender'])[2]/following::div[2]")).click();
+		    driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Male'])[2]/following::span[1]")).click();
+		    driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Woah!'])[1]/following::button[1]")).click();
+		    pause(5000);
+	      String actualResult = driver.findElement(By.xpath("/html/body/div[3]/div/div[2]/form/div[4]/div/p")).getText();
+	      assertThat(actualResult, is("Successfully updated!"));
+	  }
+	  
+	  
+	  @Test
+	  public void DTest() throws Exception {
+		  driver.get("https://mern-crud-mpfr.onrender.com/");
+		  pause(5000);
+		  driver.findElement(By.xpath("//div[@id='root']/div/div[2]/table/tbody/tr/td[5]/button[2]")).click();
+		    driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Cervera Gonzalezz'])[2]/following::button[1]")).click();
 
-        driver.findElement(By.name("name")).sendKeys("Javi");
-        driver.findElement(By.name("email")).sendKeys("javi@hotmail.com");
-        driver.findElement(By.name("age")).sendKeys("21");
-        
-        Thread.sleep(1000);
-        
-        // No encontré otra manera para el boton añadir
-        driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Woah!'])[1]/following::button[1]")).click(); // Clic en el botón Save
+		    pause(5000);
+		    boolean recordExists = verifyRecordExists("esteban edit", "estebanedt@gmail.com", "19");
+	        assertFalse("El registro no se elimino.", recordExists);
+	  }
+	  
+	  @Test
+	   public void ETest() throws Exception{
+		   driver.get("https://mern-crud-mpfr.onrender.com/");
+			  pause(5000);
+			    driver.findElement(By.xpath("//div[@id='root']/div/div[2]/button")).click();
+			    driver.findElement(By.name("name")).click();
+			    driver.findElement(By.name("name")).clear();
+			    driver.findElement(By.name("name")).sendKeys("CERVERA GONZALEZZ");
+			    driver.findElement(By.name("email")).click();
+			    driver.findElement(By.name("email")).clear();
+			    driver.findElement(By.name("email")).sendKeys("INDUSTRIASCERVERAGONZALEZ@GMAIL.COM");
+			    driver.findElement(By.name("age")).click();
+			    driver.findElement(By.name("age")).clear();
+			    driver.findElement(By.name("age")).sendKeys("21");
+			    driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Gender'])[2]/following::div[2]")).click();
+			    driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Male'])[1]/following::div[2]")).click();
+			    driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Woah!'])[1]/following::button[1]")).click();
+			    driver.findElement(By.xpath("//i")).click();
+			    pause(5000);
+			    
+			    String actualResult = driver.findElement(By.xpath("//*[@id=\"root\"]/div/div[2]/table/tbody/tr[1]/td[1]")).getText();
+			    assertThat(actualResult,is("Cervera Gonzalezz"));
+			   
+	   }
+	  
+	  @Test
+	   public void FTest() throws Exception{
+		   driver.get("https://mern-crud-mpfr.onrender.com/");
+			  pause(5000);
+			    driver.findElement(By.xpath("//div[@id='root']/div/div[2]/button")).click();
+			    driver.findElement(By.name("name")).click();
+			    driver.findElement(By.name("name")).clear();
+			    driver.findElement(By.name("name")).sendKeys("CERVERA GONZALEZZ");
+			    driver.findElement(By.name("email")).click();
+			    driver.findElement(By.name("email")).clear();
+			    driver.findElement(By.name("email")).sendKeys("cer@GMAIL.COM");
+			    driver.findElement(By.name("age")).click();
+			    driver.findElement(By.name("age")).clear();
+			    driver.findElement(By.name("age")).sendKeys("21");
+			    driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Gender'])[2]/following::div[2]")).click();
+			    driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Male'])[1]/following::div[2]")).click();
+			    driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Woah!'])[1]/following::button[1]")).click();
+			    driver.findElement(By.xpath("//i")).click();
+			    pause(5000);
+			    
+			    String actualResult = driver.findElement(By.xpath("//*[@id=\"root\"]/div/div[2]/table/tbody/tr[1]/td[1]")).getText();
+			    assertThat(actualResult,is("Cervera Gonzalezz"));
+			    
+			    driver.findElement(By.xpath("//div[@id='root']/div/div[2]/button")).click();
+			    driver.findElement(By.name("name")).click();
+			    driver.findElement(By.name("name")).clear();
+			    driver.findElement(By.name("name")).sendKeys("esteban gon");
+			    driver.findElement(By.name("email")).click();
+			    driver.findElement(By.name("email")).clear();
+			    driver.findElement(By.name("email")).sendKeys("esasteban@GMAIL.COM");
+			    driver.findElement(By.name("age")).click();
+			    driver.findElement(By.name("age")).clear();
+			    driver.findElement(By.name("age")).sendKeys("21");
+			    driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Gender'])[2]/following::div[2]")).click();
+			    driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Male'])[1]/following::div[2]")).click();
+			    driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Woah!'])[1]/following::button[1]")).click();
+			    driver.findElement(By.xpath("//i")).click();
+			    pause(5000);
+			    
+			    String actualResult2 = driver.findElement(By.xpath("//*[@id=\"root\"]/div/div[2]/table/tbody/tr[1]/td[1]")).getText();
+			    assertThat(actualResult2,is("Esteban Gon"));
+			   
+	   }
+	  
+	
 
-        WebElement successMessage = wait.until(ExpectedConditions.visibilityOfElementLocated(
-                By.xpath("//div[@class='content']//p[contains(text(),'Successfully added!')]")));
-        assertNotNull("No se mostró el mensaje de éxito después de crear el registro.", successMessage);
+	@After
+	  public void tearDown() throws Exception {
+	    driver.quit();
+	    String verificationErrorString = verificationErrors.toString();
+	    if (!"".equals(verificationErrorString)) {
+	      fail(verificationErrorString);
+	    }
+	  }
+	  
+	  private void pause(long mils) {
+	      try {
+	          Thread.sleep(mils);
+	      } catch (InterruptedException e) {
+	          e.printStackTrace();
+	      }
+	  }
 
-        boolean recordExists = verifyRecordExists("Javi", "javi@hotmail.com", "21");
-        assertTrue("El registro no fue creado correctamente en la tabla.", recordExists);
-    }
+	  private boolean isElementPresent(By by) {
+	    try {
+	      driver.findElement(by);
+	      return true;
+	    } catch (NoSuchElementException e) {
+	      return false;
+	    }
+	  }
 
-    @Test
-    public void testBDuplicateEmailError() throws InterruptedException {
-        navigateToBaseUrl();
+	  private boolean isAlertPresent() {
+	    try {
+	      driver.switchTo().alert();
+	      return true;
+	    } catch (NoAlertPresentException e) {
+	      return false;
+	    }
+	  }
 
-        waitAndClick(By.xpath("//div[@id='root']/div/div[2]/button"));
-        
-        Thread.sleep(1000);
-        
-        driver.findElement(By.name("name")).sendKeys("Duplicate");
-        driver.findElement(By.name("email")).sendKeys("javi@hotmail.com"); 
-        driver.findElement(By.name("age")).sendKeys("25");
-        
-        Thread.sleep(1000);
-        
-        driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Woah!'])[1]/following::button[1]")).click(); 
-
-        // Validar el mensaje de error que arroja la página
-        WebElement errorMessage = wait.until(ExpectedConditions.visibilityOfElementLocated(
-                By.xpath("//div[@class='content']//p[contains(text(),'That email is already taken.')]")));
-        assertNotNull("No se mostró el mensaje de error para correo duplicado.", errorMessage);
-
-        // Para debug
-        String actualErrorMessage = errorMessage.getText();
-        assertEquals("El mensaje de error no es el esperado.",
-                "That email is already taken.", actualErrorMessage);
-    }
-
-    @Test
-    public void testCEditRecord() throws InterruptedException {
-        navigateToBaseUrl();
-
-        WebElement editButton = findEditButton("Javi");
-        wait.until(ExpectedConditions.elementToBeClickable(editButton)).click();
-        
-        Thread.sleep(1000); // Necesario para el funcionamiento de edit
-        
-        driver.findElement(By.name("age")).click();
-        driver.findElement(By.name("age")).clear();
-        driver.findElement(By.name("age")).sendKeys("22");
-        
-        Thread.sleep(1000);
-        
-        driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Woah!'])[1]/following::button[1]")).click();
-
-        // Validar el mensaje
-        WebElement successMessage = wait.until(ExpectedConditions.visibilityOfElementLocated(
-                By.xpath("//div[@class='content']//p[contains(text(),'Successfully updated!')]")));
-        assertNotNull("No se mostró el mensaje de éxito después de actualizar el registro.", successMessage);
-
-        String actualSuccessMessage = successMessage.getText();
-        assertEquals("El mensaje de éxito no es el esperado.",
-                "Successfully updated!", actualSuccessMessage);
-
-        // Encontrar el usuario con la nueva edad
-        boolean recordUpdated = verifyRecordExists("Javi", "javi@hotmail.com", "22");
-        assertTrue("El registro no fue actualizado correctamente en la tabla.", recordUpdated);
-    }
-
-    @Test
-    public void testDeleteRecord() throws InterruptedException {
-        navigateToBaseUrl();
-
-        WebElement deleteButton = findDeleteButton("Javi");
-        wait.until(ExpectedConditions.elementToBeClickable(deleteButton)).click(); 
-
-        WebElement yesButton = wait.until(ExpectedConditions.elementToBeClickable(
-                By.xpath("//button[contains(@class, 'ui red button') and text()='Yes']")));
-        yesButton.click();
-
-        Thread.sleep(1000); 
-        
-        boolean recordExists = verifyRecordExists("Javi", "javi@hotmail.com", "21");
-        assertFalse("El registro no fue eliminado correctamente.", recordExists);
-    }
-    
-    @Test
-    public void testSearchRecordByName() {
-        navigateToBaseUrl();
-
-        // Obtener todas las filas de la tabla
-        List<WebElement> rows = driver.findElements(By.xpath("//tbody/tr"));
-
-        boolean recordFound = false;
-        for (WebElement row : rows) {
-            if (row.getText().contains("Javi")) {
-                recordFound = true;
-                break;
-            }
-        }
-        assertTrue("No se encontró el registro con el nombre 'Javi'.", recordFound);
-    }
-
-    @Test
-    public void testSearchAllRecords() {
-        navigateToBaseUrl();
-
-        List<WebElement> rows = driver.findElements(By.xpath("//tbody/tr"));
-        assertTrue("No se encontraron registros en la tabla.", rows.size() > 0);
-
-        // Print de las filas
-        for (WebElement row : rows) {
-            System.out.println("Registro: " + row.getText());
-        }
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        if (driver != null) {
-            driver.quit();
-        }
-    }
-
-    private void navigateToBaseUrl() {
-        driver.get(baseUrl);
-        waitForPageLoad(); // Esperar a que la página termine de cargar para evitar error
-    }
-
-    private void waitForPageLoad() {
-        wait.until(webDriver -> ((JavascriptExecutor) webDriver)
-                .executeScript("return document.readyState").equals("complete"));
-    }
-
-    // Esperar a entrar a la página
-    private void waitAndClick(By locator) {
-        wait.until(ExpectedConditions.elementToBeClickable(locator)).click();
-    }
-
-    // Comparar elementos de la tabla del CRUD
-    private boolean verifyRecordExists(String name, String email, String age) {
-        List<WebElement> rows = driver.findElements(By.xpath("//tbody/tr"));
-        for (WebElement row : rows) {
-            String rowText = row.getText();
-            if (rowText.contains(name) && rowText.contains(email) && rowText.contains(age)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    // Web Scrapping
-    private WebElement findEditButton(String name) {
-        return driver.findElement(By.xpath("//tbody/tr[td[text()='" + name + "']]//button[text()='Edit']"));
-    }
-
-    private WebElement findDeleteButton(String name) {
-        return driver.findElement(By.xpath("//tbody/tr[td[text()='" + name + "']]//button[text()='Delete']"));
-    }
+	  private String closeAlertAndGetItsText() {
+	    try {
+	      Alert alert = driver.switchTo().alert();
+	      String alertText = alert.getText();
+	      if (acceptNextAlert) {
+	        alert.accept();
+	      } else {
+	        alert.dismiss();
+	      }
+	      return alertText;
+	    } finally {
+	      acceptNextAlert = true;
+	    }
+	  }
 }
