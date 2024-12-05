@@ -6,6 +6,7 @@ import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -24,12 +25,18 @@ public class SeleniumTest {
 	  
 	  @Before
 	  public void setUp() throws Exception {
-		WebDriverManager.chromedriver().setup();
-	    driver = new ChromeDriver();
-	    baseUrl = "https://www.facebook.com/";
-	    driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(60));
-	    js = (JavascriptExecutor) driver;
+		  WebDriverManager.chromedriver().setup();
+		  ChromeOptions options = new ChromeOptions();
+		  options.addArguments("--headless"); // Ejecutar en modo headless
+		  options.addArguments("--disable-gpu"); // Deshabilitar GPU (opcional, mejora en headless)
+		  options.addArguments("--no-sandbox"); // Recomendado para contenedores
+		  options.addArguments("--disable-dev-shm-usage"); // Usar /tmp si falta memoria compartida
+		  driver = new ChromeDriver(options);
+		  baseUrl = "https://www.facebook.com/";
+		  driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(60));
+		  js = (JavascriptExecutor) driver;
 	  }
+	  
 
 	  @Test
 	  public void testUntitledTestCase() throws Exception {
