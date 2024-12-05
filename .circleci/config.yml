@@ -32,7 +32,7 @@ jobs:
       - run:
           name: Run unit tests (excluding UserDAOTest and UserServiceTest)
           command: |
-            mvn test -Dtest=!UserDAOTest,!UserServiceTest,com.mayab.quality.functional.CRUDSeleniumTest,com.mayab.quality.functional.SeleniumTest, com.mayab.quality.functional.unittest.service.LoginServiceTest
+            mvn test -Dtest=!UserDAOTest,!UserServiceTest,CRUDSeleniumTest,SeleniumTest,LoginServiceTest
 
 workflows:
   version: 2
