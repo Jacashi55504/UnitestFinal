@@ -3,8 +3,8 @@ version: 2.1
 jobs:
   unit_tests:
     docker:
-      - image: circleci/openjdk:11  # Imagen principal con OpenJDK 11
-      - image: circleci/mysql:5.7   # Servicio de MySQL
+      - image: circleci/openjdk:11
+      - image: circleci/mysql:5.7
         name: mysql
         environment:
           MYSQL_ROOT_PASSWORD: 123456
@@ -23,7 +23,7 @@ jobs:
           name: Install MySQL Client
           command: sudo apt-get install -y default-mysql-client
 
-      # Instalar Dockerize para esperar a que MySQL esté listo
+      # Instalar Dockerize
       - run:
           name: Install Dockerize
           command: |
@@ -34,30 +34,33 @@ jobs:
       # Esperar a que MySQL esté listo
       - run:
           name: Wait for MySQL
-          command: dockerize -wait tcp://127.0.0.1:3306 -timeout 1m
+          command: dockerize -wait tcp://mysql:3306 -timeout 1m
 
-      # Importar esquema SQL
+      # Configurar base de datos con esquema SQL
       - run:
-          name: Install MySQL and import schema
+          name: Apply schema
           command: |
-            sudo apt update && sudo apt install -y default-mysql-client
-            echo "Importing schema from src/resources/schema.sql..."
-            mysql -h 127.0.0.1 -uroot -p123456 calidad2024 < src/resources/schema.sql
-            echo "Checking tables in calidad2024..."
-            mysql -h 127.0.0.1 -uroot -p123456 calidad2024 -e "SHOW TABLES;"
-            echo "SELECT * FROM usuarios;" | mysql -h 127.0.0.1 -uroot -p123456 calidad2024
-            echo "done"
+            echo "Applying schema..."
+            mysql -h mysql -uroot -p123456 calidad2024 < src/resources/schema.sql
+            echo "Schema applied successfully."
+
+      # Verificar tablas en la base de datos
+      - run:
+          name: Verify MySQL Schema
+          command: |
+            echo "Checking database schema..."
+            mysql -h mysql -uroot -p123456 calidad2024 -e "SHOW TABLES;"
+            echo "Database schema verified."
 
       # Construir el proyecto sin ejecutar pruebas
       - run:
           name: Build the project
           command: mvn clean install -DskipTests
 
-      # Ejecutar pruebas ignorando UserDAOTest y UserServiceTest
+      # Ejecutar pruebas
       - run:
-          name: Run unit tests (excluding UserDAOTest and UserServiceTest)
-          command: |
-            mvn test -Dtest=UserDAOTest,UserServiceTest,CRUDSeleniumTest,LoginServiceTest
+          name: Run integration tests
+          command: mvn test
 
 workflows:
   version: 2
