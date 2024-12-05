@@ -7,23 +7,45 @@ jobs:
     steps:
       - checkout
 
-      # Actualizar paquetes y solucionar problemas de ca-certificates-java
+      # Actualizar paquetes
       - run:
           name: Update package manager
           command: sudo apt-get update
 
+      # Instalar Google Chrome
       - run:
-          name: Fix ca-certificates-java issue
+          name: Install Google Chrome
           command: |
-            sudo apt-get purge --auto-remove -y ca-certificates-java
-            sudo apt-get install -y ca-certificates-java
+            sudo apt-get update
+            sudo apt-get install -y wget gnupg
+            wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+            echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+            sudo apt-get update
+            sudo apt-get install -y google-chrome-stable
+
+      # Instalar ChromeDriver
+      - run:
+          name: Install ChromeDriver
+          command: |
+            CHROME_DRIVER_VERSION=$(curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE)
+            wget -N https://chromedriver.storage.googleapis.com/$CHROME_DRIVER_VERSION/chromedriver_linux64.zip
+            unzip chromedriver_linux64.zip
+            sudo mv chromedriver /usr/local/bin/
+            sudo chmod +x /usr/local/bin/chromedriver
+
+      # Verificar versiones instaladas
+      - run:
+          name: Check Chrome and ChromeDriver versions
+          command: |
+            google-chrome --version
+            chromedriver --version
 
       # Instalar Maven
       - run:
           name: Install Maven
           command: sudo apt-get install -y maven
 
-      # Construir el proyecto
+      # Construir el proyecto sin ejecutar pruebas
       - run:
           name: Build the project
           command: mvn clean install -DskipTests
